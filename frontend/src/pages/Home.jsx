@@ -1,38 +1,33 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { getHealth } from "@/lib/api";
+import PDFUploader from "@/components/PDFUploader";
 
 export default function Home() {
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [sessionId] = useState("test123"); // Later we’ll generate a unique sessionId
+  const [uploadedDocs, setUploadedDocs] = useState([]);
 
-  const checkHealth = async () => {
-    setLoading(true);
-    const data = await getHealth();
-    if (data && data.status === "ok") {
-      setStatus("Online ✅");
-    } else {
-      setStatus("Offline ❌");
-    }
-    setLoading(false);
+  const handleUploadSuccess = (data) => {
+    setUploadedDocs((prev) => [...prev, data]);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-[350px]">
-        <CardContent className="space-y-4 text-center">
-          <h1 className="text-xl font-bold">AI PDF Chatbot</h1>
-          <Button onClick={checkHealth} disabled={loading}>
-            {loading ? "Checking..." : "Check API Health"}
-          </Button>
-          {status && (
-            <p className="text-lg font-semibold mt-2">
-              Backend Status: <span>{status}</span>
-            </p>
-          )}
-        </CardContent>
-      </Card>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 space-y-8">
+      <h1 className="text-2xl font-bold">AI PDF Chatbot</h1>
+      <PDFUploader
+        sessionId={sessionId}
+        onUploadSuccess={handleUploadSuccess}
+      />
+      {uploadedDocs.length > 0 && (
+        <div className="bg-white p-4 rounded shadow w-[400px]">
+          <h2 className="text-lg font-semibold mb-2">Uploaded PDFs</h2>
+          <ul className="list-disc list-inside text-sm">
+            {uploadedDocs.map((doc) => (
+              <li key={doc.doc_id}>
+                {doc.filename} — {doc.size_kb} KB
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import setup_logging
-from app.api import health
+from app.api import health, upload
 
 setup_logging()
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
-# CORS
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -19,4 +19,4 @@ app.add_middleware(
 
 # Routes
 app.include_router(health.router)
-
+app.include_router(upload.router)
